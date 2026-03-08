@@ -2,9 +2,14 @@
 -- sends and receives rpc requests from/to a compiled rust binary, to dynamically display the state
 -- of the cells of a brainfuck program
 
--- add this file, as well as the binary to your .config/nvim/lua/ directory and add the following line to your init.lua:
+-- add this file, as well as the binary to your .config/nvim/lua/ directory and add the following lines to
+-- your init.lua: 
 
--- local bfDisplay = require("bfDisplay-rs").setup()
+-- local bfDisplay = require("bfDisplay-rs")
+-- bfDisplay.setup()
+
+local AUTOSTART = true -- should the plugin autostart when opening a .bf
+local DISPLAY_HEIGHT = 4 -- amount of horizontal lines in the display
 
 local M = {}
 
@@ -13,15 +18,10 @@ local win_id = nil
 local buf_id = nil
 local job_id = nil
 
-local function get_or_create_win(num_cells, num_lines)
-  local width = num_cells * 7 + 2
-  local col = math.floor((vim.o.columns - width) / 2)
-
-  if buf_id and vim.api.nvim_buf_is_valid(buf_id) and win_id and vim.api.nvim_win_is_valid(win_id) then
-    vim.api.nvim_win_set_config(win_id, {
-      relative = 'editor', row = 0, col = col,
-      width = width, height = num_lines,
-    })
+local function get_or_create_win()
+  if buf_id and vim.api.nvim_buf_is_valid(buf_id)
+    and win_id and vim.api.nvim_win_is_valid(win_id) then
+    vim.api.nvim_win_set_height(win_id, DISPLAY_HEIGHT)
     return win_id, buf_id
   end
 
@@ -29,49 +29,62 @@ local function get_or_create_win(num_cells, num_lines)
   vim.api.nvim_buf_set_option(buf_id, 'bufhidden', 'wipe')
   vim.api.nvim_buf_set_option(buf_id, 'filetype', 'bfDisplay')
 
+  -- save current window to return focus to it
+  local current_win = vim.api.nvim_get_current_win()
+
   win_id = vim.api.nvim_open_win(buf_id, false, {
-    relative = 'editor', row = 0, col = col,
-    width = width, height = num_lines,
-    style = 'minimal', border = 'rounded', zindex = 50,
+    split = 'above',
+    height = DISPLAY_HEIGHT,
   })
-  vim.api.nvim_win_set_option(win_id, 'winhl',
-    'Normal:NormalFloat,FloatBorder:FloatBorder')
+
+  vim.api.nvim_win_set_option(win_id, 'wrap', false)
+  vim.api.nvim_win_set_option(win_id, 'number', false)
+  vim.api.nvim_win_set_option(win_id, 'relativenumber', false)
+  vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
+  vim.api.nvim_win_set_option(win_id, 'winfixheight', true)
+  vim.api.nvim_buf_set_keymap(buf_id, 'n', '<ScrollWheelLeft>',  'zh', { noremap = true })
+  vim.api.nvim_buf_set_keymap(buf_id, 'n', '<ScrollWheelRight>', 'zl', { noremap = true })
+
+  -- return focus to the editing window
+  vim.api.nvim_set_current_win(current_win)
 
   return win_id, buf_id
 end
 
 local function render(tape, ptr, warning)
-  local max_show = 0
-  for i, v in ipairs(tape) do
-    if v ~= 0 then max_show = i end
+  local cell_width = 7
+  local cells_per_row = math.floor(vim.o.columns / cell_width)
+  local total_cells = #tape
+
+  local display_lines = {}
+
+  local row = 0
+  while row * cells_per_row < total_cells do
+    local cell_nums = {}
+    local cell_vals = {}
+    local ptr_row   = {}
+
+    for col = 0, cells_per_row - 1 do
+      local i = row * cells_per_row + col
+      if i >= total_cells then break end
+      table.insert(cell_nums, string.format(" %4d ", i))
+      table.insert(cell_vals, string.format(" %4d ", tape[i + 1] or 0))
+      table.insert(ptr_row,   i == ptr and "  ^   " or "      ")
+    end
+
+    table.insert(display_lines, table.concat(cell_nums, "|"))
+    table.insert(display_lines, table.concat(cell_vals, "|"))
+    table.insert(display_lines, table.concat(ptr_row,   " "))
+    table.insert(display_lines, "")
+
+    row = row + 1
   end
-  max_show = math.max(max_show, ptr + 1) + 2  -- +1 because lua is 1-indexed, +2 for padding
-  max_show = math.min(max_show, 16)
-
-  local cell_nums = {}
-  local cell_vals = {}
-  local ptr_row   = {}
-
-  for i = 0, max_show do
-    table.insert(cell_nums, string.format(" %4d ", i))
-    table.insert(cell_vals, string.format(" %4d ", tape[i + 1] or 0))  -- tape is 1-indexed in lua
-    table.insert(ptr_row,   i == ptr and "  ^   " or "      ")
-  end
-
-  local display_lines = {
-    table.concat(cell_nums, "|"),
-    table.concat(cell_vals, "|"),
-    table.concat(ptr_row,   " "),
-  }
 
   if warning then
-    local width = (max_show + 1) * 7 + 2
-    local msg = "⚠  infinite loop detected"
-    local padding = math.max(0, math.floor((width - #msg) / 2))
-    table.insert(display_lines, string.rep(" ", padding) .. msg)
+    table.insert(display_lines, "⚠  infinite loop detected")
   end
 
-  local w, b = get_or_create_win(max_show + 1, #display_lines)
+  local w, b = get_or_create_win(#display_lines)
   vim.api.nvim_buf_set_option(b, 'modifiable', true)
   vim.api.nvim_buf_set_lines(b, 0, -1, false, display_lines)
   vim.api.nvim_buf_set_option(b, 'modifiable', false)
@@ -108,6 +121,14 @@ function M.start()
       M.evaluate()
     end,
   })
+  vim.api.nvim_create_autocmd("BufWinLeave", {
+    pattern = "*.bf",
+    callback = function()
+      vim.schedule(function()
+        M.stop()
+      end)
+    end,
+  })
   print("Plugin started, job_id: " .. job_id)
 
   vim.api.nvim_create_autocmd("User", {
@@ -120,6 +141,7 @@ function M.start()
     end,
   })
   M.evaluate()
+  vim.opt.mousescroll = "ver:4,hor:6"
 end
 
 function M.ping()
@@ -137,12 +159,30 @@ function M.stop()
     job_id = nil
     print("Plugin stopped")
   end
+  if win_id and vim.api.nvim_win_is_valid(win_id) then
+    if #vim.api.nvim_list_wins() > 1 then
+      vim.api.nvim_win_close(win_id, true)
+    else
+      vim.cmd('qa')
+    end
+  end
+  win_id = nil
+  buf_id = nil
 end
 
 function M.setup()
   vim.api.nvim_create_user_command("BfrsStart", function() M.start() end, {})
   vim.api.nvim_create_user_command("BfrsPing",  function() M.ping() end, {})
   vim.api.nvim_create_user_command("BfrsStop",  function() M.stop() end, {})
+  if AUTOSTART then vim.api.nvim_create_autocmd("BufEnter", {
+    pattern = "*.bf",
+    callback = function()
+      if job_id == nil then
+        M.start()
+      end
+    end 
+    })
+  end
 end
 
 function M.evaluate()
