@@ -17,6 +17,7 @@ local ns = vim.api.nvim_create_namespace("bfDisplay-rs")
 local win_id = nil
 local buf_id = nil
 local job_id = nil
+local script_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h") -- why lua why
 
 local function get_or_create_win()
   if buf_id and vim.api.nvim_buf_is_valid(buf_id)
@@ -97,7 +98,7 @@ end
 
 function M.start()
   job_id = vim.fn.jobstart(
-  { "/home/lei/.config/nvim/lua/bfDisplay" },
+  { script_dir .. "/bfDisplay" },
   {
     rpc = true,
     env = { RUST_BACKTRACE = "full" },
