@@ -18,6 +18,9 @@ local win_id = nil
 local buf_id = nil
 local job_id = nil
 local script_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h") -- why lua why
+local pending_request = false
+local warn_win_id = nil
+local warn_buf_id = nil
 
 local function get_or_create_win()
   if buf_id and vim.api.nvim_buf_is_valid(buf_id)
@@ -52,6 +55,34 @@ local function get_or_create_win()
   return win_id, buf_id
 end
 
+local function show_warning()
+  if warn_win_id and vim.api.nvim_win_is_valid(warn_win_id) then return end
+  local msg = "Warning: infinite loop detected"
+
+  warn_buf_id = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(warn_buf_id, 0, -1, false, { msg })
+
+  warn_win_id = vim.api.nvim_open_win(warn_buf_id, false, {
+    relative = 'editor',
+    row = 2,
+    col = math.floor((vim.o.columns - #msg) / 2),
+    width = #msg,
+    height = 1,
+    style = 'minimal',
+    border = 'rounded',
+    zindex = 100,
+  })
+  vim.api.nvim_win_set_option(warn_win_id, 'winhl', 'Normal:WarningMsg')
+end
+
+local function hide_warning()
+  if warn_win_id and vim.api.nvim_win_is_valid(warn_win_id) then
+    vim.api.nvim_win_close(warn_win_id, true)
+  end
+  warn_win_id = nil
+  warn_buf_id = nil
+end
+
 local function render(tape, ptr, warning)
   local cell_width = 7
   local cells_per_row = math.floor(vim.o.columns / cell_width)
@@ -81,11 +112,9 @@ local function render(tape, ptr, warning)
     row = row + 1
   end
 
-  if warning then
-    table.insert(display_lines, "⚠  infinite loop detected")
-  end
+  if warning then show_warning() else hide_warning() end
 
-  local w, b = get_or_create_win(#display_lines)
+  local w, b = get_or_create_win()
   vim.api.nvim_buf_set_option(b, 'modifiable', true)
   vim.api.nvim_buf_set_lines(b, 0, -1, false, display_lines)
   vim.api.nvim_buf_set_option(b, 'modifiable', false)
@@ -94,6 +123,8 @@ end
 
 function M._on_result(result)
   render(result["tape"], result["pointer"], result["warning"])
+  pending_request = false
+  --print("warning={}", result["warning"])
 end
 
 function M.start()
@@ -130,17 +161,16 @@ function M.start()
       end)
     end,
   })
+  vim.api.nvim_create_autocmd("WinResized", {
+  callback = function()
+    if win_id and vim.api.nvim_win_is_valid(win_id) then
+      vim.api.nvim_win_set_option(win_id, 'winfixheight', true)
+      vim.api.nvim_win_set_height(win_id, DISPLAY_HEIGHT)
+    end
+  end,
+  })
   print("Plugin started, job_id: " .. job_id)
 
-  vim.api.nvim_create_autocmd("User", {
-    pattern = "bfDisplay_result",
-    callback = function(ev)
-      local tape    = ev.data["tape"]
-      local ptr     = ev.data["pointer"]
-      local warning = ev.data["warning"]
-      render(tape, ptr, warning)
-    end,
-  })
   M.evaluate()
   vim.opt.mousescroll = "ver:4,hor:6"
 end
@@ -188,6 +218,8 @@ end
 
 function M.evaluate()
   if job_id == nil then return end
+  if pending_request then return end
+  pending_request = true
 
   local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   local code = table.concat(lines, "\n")
