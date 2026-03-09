@@ -6,6 +6,6 @@ rust:
 
 lua:
 	cd plugin && npx tstl
-	cp plugin/bfDisplay-rs.lua ~/.config/nvim/lua
+	cp plugin/target/bfDisplay-rs.lua ~/.config/nvim/lua
 
 build: rust lua

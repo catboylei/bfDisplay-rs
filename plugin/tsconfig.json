@@ -1,14 +1,14 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "lib": ["ESNext"],
-    "strict": true,
-    "types": ["@gkzhb/lua-types-nvim", "@typescript-to-lua/language-extensions"]
-  },
-  "tstl": {
-    "luaTarget": "5.4",
-    "noImplicitSelf": true,
-    "luaBundle": "bfDisplay-rs.lua",
-    "luaBundleEntry": "src/init.ts",
-  }
+    "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["ESNext"],
+        "strict": true,
+        "types": ["@gkzhb/lua-types-nvim", "@typescript-to-lua/language-extensions"]
+    },
+    "tstl": {
+        "luaTarget": "5.4",
+        "noImplicitSelf": true,
+        "luaBundle": "target/bfDisplay-rs.lua",
+        "luaBundleEntry": "src/init.ts"
+    }
 }

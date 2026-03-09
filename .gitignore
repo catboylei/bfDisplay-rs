@@ -1,4 +1,6 @@
 /target
 /lua
 /plugin/node_modules
-/plugin/bfDisplay-rs.lua
+/plugin/target
+/plugin/.prettierignore
+/plugin/.prettierrc
