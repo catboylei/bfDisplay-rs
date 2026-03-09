@@ -34,7 +34,8 @@ impl From<InterpreterResult> for Value {
         Value::Map(vec![
             (Value::from("tape"), Value::Array(result.tape.iter().map(|&v| Value::from(v)).collect())),
             (Value::from("pointer"), Value::from(result.pointer)),
-            (Value::from("warning"), Value::from(result.infinite_loop_warning))
+            (Value::from("warning"), Value::from(result.infinite_loop_warning)),
+            (Value::from("output"), Value::from(result.output))
         ])
     }
 }

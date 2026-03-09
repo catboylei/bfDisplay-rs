@@ -29,23 +29,31 @@ impl Handler for NeovimHandler {
     ) {
         match name.as_ref() {
             "evaluate" => {
+                eprintln!("eval request received");
                 let code = args[0].as_str().unwrap_or("").to_string();
                 let cursor = &args[1];
                 let commands = cleanup_contents(&code, cursor);
                 let mut interp = BrainfuckInterpreter::new();
-                let result = interp.execute(&commands);
+                let result = interp.execute(&commands, String::from(""), false);
 
-                // push result back to neovim as a notification
-                neovim
-                    .command(&"doautocmd User bfDisplay_result".to_string())
-                    .await
-                    .ok();
                 // actually send data via nvim_exec_lua
                 neovim
-                    .exec_lua(
-                        "require('bfDisplay-rs')._on_result(...)",
-                        vec![Value::from(result)],
-                    )
+                    .exec_lua("require('bfDisplay-rs')._on_result(...)", vec![Value::from(result)], )
+                    .await
+                    .ok();
+            }
+            "interpret" => {
+                eprintln!("interpret received, args len={}", args.len());
+                let code = args[0].as_str().unwrap_or("").to_string();
+                let cursor = &args[1];
+                let input = &args[2];
+                let commands = cleanup_contents(&code, cursor);
+                let mut interp = BrainfuckInterpreter::new();
+                let result = interp.execute(&commands, input.as_str().unwrap_or("").to_string(), true);
+
+                // actually send data via nvim_exec_lua
+                neovim
+                    .exec_lua("require('bfDisplay-rs')._on_result_interpret(...)", vec![Value::from(result)], )
                     .await
                     .ok();
             }

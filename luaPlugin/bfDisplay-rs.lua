@@ -21,6 +21,8 @@ local script_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":h")
 local pending_request = false
 local warn_win_id = nil
 local warn_buf_id = nil
+local run_win_id = nil
+local run_buf_id = nil
 
 local function get_or_create_win()
   if buf_id and vim.api.nvim_buf_is_valid(buf_id)
@@ -75,6 +77,15 @@ local function show_warning()
   vim.api.nvim_win_set_option(warn_win_id, 'winhl', 'Normal:WarningMsg')
 end
 
+local function center_lines(lines, width)
+  local centered = {}
+  for _, line in ipairs(lines) do
+    local padding = math.max(0, math.floor((width - #line) / 2))
+    table.insert(centered, string.rep(" ", padding) .. line)
+  end
+  return centered
+end
+
 local function hide_warning()
   if warn_win_id and vim.api.nvim_win_is_valid(warn_win_id) then
     vim.api.nvim_win_close(warn_win_id, true)
@@ -127,6 +138,46 @@ function M._on_result(result)
   --print("warning={}", result["warning"])
 end
 
+function M._on_result_interpret(result)
+  local output = result["output"]
+  local warning = result["warning"]
+  local meow_lines = vim.split(output, "\n", { plain = true })
+  local width  = math.floor(vim.o.columns * 0.3)
+  local height = math.floor(#meow_lines)
+
+  local lines = center_lines(meow_lines, width)
+
+  if warning then lines = " timed out :c " end
+
+  if run_buf_id and vim.api.nvim_buf_is_valid(run_buf_id)
+          and run_win_id and vim.api.nvim_win_is_valid(run_win_id) then
+    vim.api.nvim_buf_set_option(run_buf_id, 'modifiable', true)
+    vim.api.nvim_buf_set_lines(run_buf_id, 0, -1, false, lines)
+    vim.api.nvim_buf_set_option(run_buf_id, 'modifiable', false)
+    return
+  end
+
+  run_buf_id = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(run_buf_id, 0, -1, false, lines)
+  vim.api.nvim_buf_set_option(run_buf_id, 'modifiable', false)
+
+  run_win_id = vim.api.nvim_open_win(run_buf_id, true, {
+    relative  = 'editor',
+    row       = math.floor((vim.o.lines - height) / 5),
+    col       = math.floor((vim.o.columns - width) / 2),
+    width     = width,
+    height    = height,
+    style     = 'minimal',
+    border    = 'rounded',
+    title     = ' Output ',
+    title_pos = 'center',
+    zindex    = 50,
+  })
+
+  vim.api.nvim_buf_set_keymap(run_buf_id, 'n', 'q',     ':close<CR>', { noremap = true, silent = true })
+  vim.api.nvim_buf_set_keymap(run_buf_id, 'n', '<Esc>', ':close<CR>', { noremap = true, silent = true })
+end
+
 function M.start()
   job_id = vim.fn.jobstart(
   { script_dir .. "/bfDisplay" },
@@ -138,6 +189,7 @@ function M.start()
       for _, line in ipairs(data) do
         if line ~= "" then
           f:write(line .. "\n")
+          f:flush()
         end
       end
       f:close()
@@ -153,8 +205,7 @@ function M.start()
       M.evaluate()
     end,
   })
-  vim.api.nvim_create_autocmd("BufWinLeave", {
-    pattern = "*.bf",
+  vim.api.nvim_create_autocmd("VimLeavePre", {
     callback = function()
       vim.schedule(function()
         M.stop()
@@ -167,12 +218,26 @@ function M.start()
       vim.api.nvim_win_set_option(win_id, 'winfixheight', true)
       vim.api.nvim_win_set_height(win_id, DISPLAY_HEIGHT)
     end
+    vim.schedule(function()
+      pending_request = false
+      M.evaluate()
+    end)
   end,
   })
   print("Plugin started, job_id: " .. job_id)
 
   M.evaluate()
   vim.opt.mousescroll = "ver:4,hor:6"
+end
+
+function M.run(input)
+  if job_id == nil then return end
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local code  = table.concat(lines, "\n")
+  local last_row = #lines
+  local last_col = #lines[last_row]
+  local cursor = { last_row, last_col }
+  vim.fn.rpcnotify(job_id, "interpret", code, cursor, input or "")
 end
 
 function M.ping()
@@ -190,21 +255,13 @@ function M.stop()
     job_id = nil
     print("Plugin stopped")
   end
-  if win_id and vim.api.nvim_win_is_valid(win_id) then
-    if #vim.api.nvim_list_wins() > 1 then
-      vim.api.nvim_win_close(win_id, true)
-    else
-      vim.cmd('qa')
-    end
-  end
-  win_id = nil
-  buf_id = nil
 end
 
 function M.setup()
   vim.api.nvim_create_user_command("BfrsStart", function() M.start() end, {})
   vim.api.nvim_create_user_command("BfrsPing",  function() M.ping() end, {})
   vim.api.nvim_create_user_command("BfrsStop",  function() M.stop() end, {})
+  vim.api.nvim_create_user_command("BfrsRun", function(input) M.run(input.args) end, { nargs = '?' })
   if AUTOSTART then vim.api.nvim_create_autocmd("BufEnter", {
     pattern = "*.bf",
     callback = function()
