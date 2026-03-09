@@ -1,2 +1,4 @@
 /target
 /lua
+/plugin/node_modules
+/plugin/bfDisplay-rs.lua

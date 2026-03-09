@@ -7,7 +7,7 @@ showing cell indices, values, the pointer position, and a warning if an infinite
 
 Also includes a simple interpreter that handles i/o, through neovim user commands
 
-![img_1.png](img_1.png)
+![img_1.png](assets/readme.png)
 
 Note: this delegates all interpreting logic to a **non-blocking** rust binary, for speed and so that stuff like infinite loops dont lag out nvim.
 
@@ -69,4 +69,5 @@ DISPLAY_HEIGHT = 4 -- Amount of lines to display at once
 - add syntax highlighting
 - add customization constants
 - stop globally setting scroll speed lmao
-- rewrite lua plugin to be readable (terrible fate)
+- compliance...
+- write the plugin in ts
