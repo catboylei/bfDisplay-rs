@@ -52,7 +52,7 @@ export function updateCellDisplay(): void {
         const cell_nums = slice.map((_, i) => fmt(row * cells_per_row + i));
         const cell_vals = slice.map((v) => fmt(v ?? 0));
         const ptr_row = slice.map((_, i) =>
-            row * cells_per_row + i === ptr ? '   ^   ' : '       '
+            row * cells_per_row + i === ptr ? '   ^    ' : '        '
         );
 
         display_lines.push(cell_nums.join('|'), cell_vals.join('|'), ptr_row.join(''));

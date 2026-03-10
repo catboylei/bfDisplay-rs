@@ -93,5 +93,10 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 
 ## Todos
 
-- add syntax highlighting
-- add customization constants
+- add syntax highlighting (toggleable and with advanced options or else theres no point)
+- add more customization constants + add color to the cell the pointer is at
+- ascii value display in cell display
+- linter... ?
+- default input for cell display
+- step through debug :3
+- look into package manager stuff / lazy.nvim
