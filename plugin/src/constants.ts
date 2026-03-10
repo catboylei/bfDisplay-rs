@@ -1,7 +1,6 @@
 export const AUTOSTART: boolean = true;
 export const PATTERNS: string = '{*.bf,*.b,*.brainfuck}';
 export const DISPLAY_ROWS: number = 1;
-export const NAMESPACE = 'BfDisplay-rs';
 
 // changelog so i dont forget :
 
