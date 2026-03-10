@@ -1,5 +1,5 @@
 import { state } from './state';
-import { DISPLAY_ROWS } from './constants';
+import { CONTROL_CHARS, DISPLAY_ROWS } from './constants';
 import {center_lines} from "./utils";
 
 export function createCellWindow(): void {
@@ -10,7 +10,7 @@ export function createCellWindow(): void {
 
     state.cell_win_id = vim.api.nvim_open_win(state.cell_buf_id, false, {
         split: 'above',
-        height: Math.floor(DISPLAY_ROWS * 3),
+        height: Math.floor(DISPLAY_ROWS * 4),
     });
 
     vim.api.nvim_win_set_option(state.cell_win_id, 'wrap', false as any);
@@ -20,7 +20,7 @@ export function createCellWindow(): void {
     vim.api.nvim_win_set_option(state.cell_win_id, 'winfixheight', true as any);
     vim.api.nvim_win_set_option(state.cell_win_id, 'winfixbuf', true as any);
     vim.api.nvim_buf_set_option(state.cell_buf_id, 'modifiable', false as any);
-    vim.api.nvim_win_set_option(state.cell_win_id, 'scroll', 3 as any);
+    vim.api.nvim_win_set_option(state.cell_win_id, 'mousescroll', `ver:4,hor:6` as any);
 }
 
 export function closeCellWindow(): void {
@@ -46,16 +46,29 @@ export function updateCellDisplay(): void {
         const right = 7 - s.length - left;
         return ' '.repeat(left) + s + ' '.repeat(right);
     };
+    const fmt_ascii = (n: number) => {
+        let s: string;
+        if (n >= 32 && n <= 126)
+            s = String.fromCharCode(n);
+        else if (n <= 31 || n === 127)
+            s = CONTROL_CHARS[n];
+        else s = "?"; // unsupported
+
+        const left = Math.ceil((7 - s.length) / 2);
+        const right = 7 - s.length - left;
+        return ' '.repeat(left) + s + ' '.repeat(right);
+    };
 
     for (let row = 0; row * cells_per_row < tape.length; row++) {
         const slice = tape.slice(row * cells_per_row, (row + 1) * cells_per_row);
         const cell_nums = slice.map((_, i) => fmt(row * cells_per_row + i));
         const cell_vals = slice.map((v) => fmt(v ?? 0));
+        const cell_ascii = slice.map((v) => fmt_ascii(v ?? -1))
         const ptr_row = slice.map((_, i) =>
             row * cells_per_row + i === ptr ? '   ^    ' : '        '
         );
 
-        display_lines.push(cell_nums.join('|'), cell_vals.join('|'), ptr_row.join(''));
+        display_lines.push(cell_nums.join('|'), cell_vals.join('|'), cell_ascii.join('|') ,ptr_row.join(''));
     }
 
     warning ? createWarningWindow() : closeWarningWindow();
