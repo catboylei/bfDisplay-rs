@@ -10,5 +10,13 @@ export const NAMESPACE = 'BfDisplay-rs';
 // scroll is only on the cell window
 // add proper centering to cells
 // fix formatting for 5 digit numbers
+// add both catch rpc functions
+// remake output window
+// add clean start/stop
+// actually log rust errors
+// make separate entrypoint
+// add backend ping
+// add the run (interpret) command (with i/o)
+// added all the autocmds such as resize and cleanup on quit
 
-// TODO -> keep porting from top-bottom after render()
+// todo change readme to include release + makefile, and compliance

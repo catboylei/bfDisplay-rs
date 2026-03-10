@@ -9,6 +9,6 @@
         "luaTarget": "5.4",
         "noImplicitSelf": true,
         "luaBundle": "target/bfDisplay-rs.lua",
-        "luaBundleEntry": "src/init.ts"
+        "luaBundleEntry": "src/index.ts"
     }
 }

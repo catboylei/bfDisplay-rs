@@ -1,7 +1,12 @@
 import { state } from './state';
 
-export function ping(): void {
-    if (state.job_id != null) vim.api.nvim_notify('pong', vim.log.levels.INFO, {});
+export function ping_backend(): void {
+    vim.fn.rpcnotify(state.job_id, 'ping');
+    vim.api.nvim_notify('pinged at job_id : ' + state.job_id, vim.log.levels.INFO, {});
+}
+
+export function receive_ping(result: any) {
+    vim.api.nvim_notify(result, vim.log.levels.INFO, {});
 }
 
 export function center_lines(lines: string[], width: number): string[] {
