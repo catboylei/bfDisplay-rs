@@ -28,7 +28,7 @@ You have two main options for doing this:
 
 ### Option 1 - From Releases
 
-Simply go into [Releases](https://github.com/catboylei/bfDisplay-rs/releases), grab both the ```bfDisplay.lua``` and the ```bfDisplay``` binary, 
+Simply go into [Releases](https://github.com/catboylei/bfDisplay-rs/releases), grab both the ```bfDisplay-rs.lua``` and the ```bfDisplay``` binary, 
 and simply place them in ```~/.config/nvim/lua/```
 
 ### Option 2 - Compile yourself (cargo and tstl required)
