@@ -1,5 +1,13 @@
 # bfDisplay-rs 
 
+[![Releases](https://img.shields.io/github/v/release/catboylei/bfDisplay-rs?style=flat-square&color=orange)](https://github.com/catboylei/bfDisplay-rs/releases)
+
+[![Neovim](https://img.shields.io/badge/Neovim-plugin-57A143?style=flat-square&logo=neovim)](https://neovim.io/)
+[![Built with Rust](https://img.shields.io/badge/built%20with-Rust-b7410e?style=flat-square&logo=rust)](https://www.rust-lang.org/)
+[![TypeScriptToLua](https://img.shields.io/badge/Lua-via%20TSTL-2C2D72?style=flat-square&logo=lua)](https://github.com/TypeScriptToLua/TypeScriptToLua)
+
+[![BF Compliant](https://img.shields.io/badge/Brainfuck-Spec%20compliant-ff69b4?style=flat-square)](https://brainfuck.org/)
+
 A Neovim plugin for live brainfuck debugging, powered by a Rust backend via msgpack-RPC.
 
 As you move your cursor through a .bf file, the plugin displays the state of the tape up to that point in the top split, 
@@ -7,7 +15,7 @@ showing cell indices, values, the pointer position, and a warning if an infinite
 
 Also includes a simple interpreter that handles i/o, through neovim user commands
 
-![readme.png](assets/readme.png)
+![img.png](assets/readme.png)
 
 Note: this delegates all interpreting logic to a **non-blocking** rust binary, for speed and so that stuff like infinite loops dont lag out nvim.
 
@@ -118,9 +126,7 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 - linter... ?
 - default input for cell display
 - step through debug :3
-- pull custom constants from a generated file
 - color constants, toggle cell display constant
 - move all commands under :Bfrs master command
-- update readme screenshots
 - optimize lua compilation cus this shit laggy af
-- have interpret return printable value of control chars
+- have run return printable value of control chars
