@@ -18,7 +18,9 @@ export function setup(): void {
         vim.api.nvim_create_autocmd('BufEnter' as any, {
             pattern: PATTERNS,
             callback: () => {
-                if (state.job_id === null) start();
+                if (state.job_id === null) {
+                    vim.api.nvim_command('BfrsStart');
+                }
             },
         });
     }

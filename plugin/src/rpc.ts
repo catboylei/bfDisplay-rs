@@ -13,15 +13,15 @@ export function on_rpc_return_evaluate(result: any): void {
 export function on_rpc_return_interpret(result: any): void {
     vim.api.nvim_notify('returned value', vim.log.levels.INFO, {});
     updateOrCreateOutputWindow(result['output'], result['warning'])
-    state.pending_request = false;
 }
 
 export function send_rpc_evaluate(): void {
-    if ( state.job_id == null || state.pending_request == null ) return;
+    if ( state.job_id == null || state.pending_request ) return;
 
     const lines = vim.api.nvim_buf_get_lines(0, 0, -1, false).join("\n")
 
     vim.fn.rpcnotify(state.job_id, 'evaluate', lines, vim.api.nvim_win_get_cursor(0));
+    state.pending_request = true
 }
 
 export function send_rpc_interpret(input: any): void {

@@ -22,16 +22,34 @@ After you have the plugin installed, just run ```:BfrsStart``` in nvim while vie
 
 ## Installation
 
-Baseline for installation is you need **BOTH** compiled files in your nvim plugins directory, as well as calling the plugin in your init.lua.
+You may either manually install the files, or install it through lazy.nvim
 
-You have two main options for doing this:
+if you opt for a manual installation, the baseline is you need **BOTH** compiled files in your nvim plugins directory, 
+as well as calling the plugin in your init.lua.
 
-### Option 1 - From Releases
 
-Simply go into [Releases](https://github.com/catboylei/bfDisplay-rs/releases), grab both the ```bfDisplay-rs.lua``` and the ```bfDisplay``` binary, 
+### Option 1 - lazy.nvim (recommended)
+
+Add this to your lazy plugins: 
+```lua
+{ "catboylei/bfDisplay-rs", build = "bash lazy-install.sh", opts = {} }
+```
+Once that is added, run :Lazy in nvim to open the lazy gui, where you can rebuild, update or debug this plugin!
+
+Note: the build step is necessary, it downloads the actual binaries from releases since 
+lazy obviously does not natively support compiling rust
+
+### Option 2 - Manual Download
+
+Go into [Releases](https://github.com/catboylei/bfDisplay-rs/releases), grab both the ```bfDisplay-rs.lua``` and the ```bfDisplay``` binary,
 and simply place them in ```~/.config/nvim/lua/```
 
-### Option 2 - Compile yourself (cargo and tstl required)
+Then add to ```init.lua```:
+```lua
+require("bfDisplay-rs").setup()
+```
+
+### Option 3 - Manual Compilation (requires tstl and cargo)
 
 This is the better option if you wish to edit constants or other customizations, simply clone the repo and then run the Makefile:
 
@@ -42,13 +60,10 @@ make build
 ```
 The makefile only serves to run cargo & tstl, then cp the compiled files into the nvim directory.
 
-### Add to Nvim:
-Once that is done, add this line to your ```init.lua```: 
-```
+Then add to ```init.lua```:
+```lua
 require("bfDisplay-rs").setup()
 ```
-
-Thats it! After you reload nvim, you should have the plugin working :3
 
 ---
 
@@ -98,6 +113,3 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 - linter... ?
 - default input for cell display
 - step through debug :3
-- properly ship through lazy.nvim \
-*(make a bash build script to download both compiled files, 
-refactor repo slightly and add instructions to readme)*
