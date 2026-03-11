@@ -1,10 +1,9 @@
 #!/bin/bash
-REPO="catboylei/bfDisplay-rs"
-LATEST=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | grep tag_name | cut -d'"' -f4)
+LATEST="1.0.0" // todo update this every major release lmao
 
 mkdir -p lua
-curl -L "https://github.com/$REPO/releases/download/$LATEST/bfDisplay" -o lua/bfDisplay
-curl -L "https://github.com/$REPO/releases/download/$LATEST/bfDisplay-rs.lua" -o lua/bfDisplay-rs.lua
+curl -L "https://github.com/catboylei/bfDisplay-rs/releases/download/$LATEST/bfDisplay" -o lua/bfDisplay
+curl -L "https://github.com/catboylei/bfDisplay-rs/releases/download/$LATEST/bfDisplay-rs.lua" -o lua/bfDisplay-rs.lua
 
 chmod +x lua/bfDisplay
 
