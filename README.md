@@ -91,11 +91,16 @@ require("bfDisplay-rs").setup()
 
 ## Customization
 
-This plugin comes with various customization constants, that you can find at the top of the constants.ts file.
-```typescript
-export const AUTOSTART: boolean = true;
-export const PATTERNS: string = '{*.bf,*.b,*.brainfuck}';
-export const DISPLAY_ROWS: number = 1;
+This plugin comes with various customization constants, that you can edit by running :BfrsConfig
+
+They will default to the values listed here if the custom value is wrong.
+```lua
+return {
+    ENABLED = true, -- whether the plugin setups at all
+    AUTOSTART = true,  -- whether to autostart when opening a file with the below extensions
+    PATTERNS = {"*.bf", "*.b", "*.brainfuck"}, -- file extensions (you can also use * for all)
+    DISPLAY_ROWS = 1 -- amount of rows that the live cell display should show
+}
 ```
 
 ---
@@ -109,7 +114,13 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 ## Todos
 
 - add syntax highlighting (toggleable and with advanced options or else theres no point)
-- add more customization constants + add color to the cell the pointer is at
+- add color to the cell the pointer is at
 - linter... ?
 - default input for cell display
 - step through debug :3
+- pull custom constants from a generated file
+- color constants, toggle cell display constant
+- move all commands under :Bfrs master command
+- update readme screenshots
+- optimize lua compilation cus this shit laggy af
+- have interpret return printable value of control chars

@@ -1,5 +1,5 @@
 import { state } from './state';
-import { CONTROL_CHARS, DISPLAY_ROWS } from './constants';
+import { CONTROL_CHARS, getConfigOrDefault } from './config';
 import {center_lines} from "./utils";
 
 export function createCellWindow(): void {
@@ -10,7 +10,7 @@ export function createCellWindow(): void {
 
     state.cell_win_id = vim.api.nvim_open_win(state.cell_buf_id, false, {
         split: 'above',
-        height: Math.floor(DISPLAY_ROWS * 4),
+        height: Math.floor(getConfigOrDefault("DISPLAY_ROWS") * 4),
     });
 
     vim.api.nvim_win_set_option(state.cell_win_id, 'wrap', false as any);

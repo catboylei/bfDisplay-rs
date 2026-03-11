@@ -1,22 +1,27 @@
 import { ping_backend } from './utils';
-import { AUTOSTART, PATTERNS } from './constants';
+import { getConfigOrDefault, openConfigFile, updateOrCreateConfig } from './config';
 import { state } from './state';
 import {
     createCellWindow,
     closeCellWindow,
-    closeWarningWindow, closeOutputWindow, updateCellDisplay, updateWarningWindow,
+    closeWarningWindow, closeOutputWindow, updateCellDisplay, updateWarningWindow, createWarningWindow,
 } from './ui';
 import { send_rpc_evaluate, send_rpc_interpret } from './rpc';
 
 export function setup(): void {
+    if (!getConfigOrDefault("ENABLED")) return;
+    updateOrCreateConfig();
+
     vim.api.nvim_create_user_command('BfrsPing', (() => ping_backend()) as any, {});
     vim.api.nvim_create_user_command('BfrsRun', ((input: any) => send_rpc_interpret(input.args)) as any, { nargs: '?'});
     vim.api.nvim_create_user_command('BfrsStart', (() => start()) as any, {});
     vim.api.nvim_create_user_command('BfrsStop', (() => stop()) as any, {});
+    vim.api.nvim_create_user_command('BfrsConfig', (() => openConfigFile()) as any, {});
 
-    if (AUTOSTART) {
-        vim.api.nvim_create_autocmd('BufEnter' as any, {
-            pattern: PATTERNS,
+    if (getConfigOrDefault("AUTOSTART")) {
+        createWarningWindow()
+        state.autostart_id = vim.api.nvim_create_autocmd('BufEnter' as any, {
+            pattern: getConfigOrDefault("PATTERNS"),
             callback: () => {
                 if (state.job_id === null) {
                     vim.api.nvim_command('BfrsStart');
@@ -59,7 +64,7 @@ function start(): void {
         }
     );
     vim.api.nvim_create_autocmd([ "CursorMoved", "CursorMovedI", "TextChanged", "TextChangedI" ] as any, {
-        pattern: PATTERNS,
+        pattern: getConfigOrDefault("PATTERNS"),
         callback: send_rpc_evaluate
     });
     vim.api.nvim_create_autocmd("QuitPre" as any, {
@@ -85,6 +90,10 @@ function stop(): void {
         vim.fn.jobstop(state.job_id)
         state.job_id = null;
         vim.api.nvim_notify('stopped Bfrs', vim.log.levels.INFO, {});
+    }
+    if (state.autostart_id !== null) {
+        vim.api.nvim_del_autocmd(state.autostart_id);
+        state.autostart_id = null;
     }
     closeCellWindow()
     closeWarningWindow()

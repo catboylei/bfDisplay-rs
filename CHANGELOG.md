@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Added
+- Added global enabled setting in config
+- Added command to open config file
+
+### Fixed
+- Remove autostart autocmd in cleanup step
+
+### Changed 
+- Parse settings from external lua config file
+
 ## [1.1.0] - 2026-03-11
 
 ### Added 

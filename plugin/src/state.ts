@@ -12,6 +12,8 @@ export const state = {
     out_win_id: null as number | null,
     out_buf_id: null as number | null,
 
+    autostart_id: null as number | null,
+
     columns: vim.api.nvim_get_option('columns') as any as number, // todo update this on window resize
     lines: vim.api.nvim_get_option('lines') as any as number,
 
