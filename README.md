@@ -98,4 +98,6 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 - linter... ?
 - default input for cell display
 - step through debug :3
-- look into package manager stuff / lazy.nvim
+- properly ship through lazy.nvim \
+*(make a bash build script to download both compiled files, 
+refactor repo slightly and add instructions to readme)*
