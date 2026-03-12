@@ -1,4 +1,4 @@
-import { ping_backend } from './utils';
+import { ping_backend, setupSyntax } from './utils';
 import { getConfigOrDefault, openConfigFile, updateOrCreateConfig } from './config';
 import { state } from './state';
 import {createCellWindow, closeCellWindow, closeWarningWindow, closeOutputWindow, updateWarningWindow,} from './ui';
@@ -28,6 +28,8 @@ export function setup(): void {
 
 function start(): void {
     if ( state.job_id != null ) return;
+    vim.api.nvim_buf_set_option(0, 'filetype', 'brainfuck' as any); // apply syntax highlight
+    setupSyntax()
 
     state.job_id = vim.fn.jobstart([state.script_dir + '/bfDisplay'], {
         rpc: true,
@@ -69,6 +71,7 @@ function start(): void {
     })
     vim.api.nvim_create_autocmd("WinResized" as any, {
         callback: () => {
+            if (state.job_id === null) return;
             state.columns = vim.api.nvim_get_option('columns') as any as number;
             state.lines = vim.api.nvim_get_option('lines') as any as number;
 
@@ -83,16 +86,17 @@ function start(): void {
 }
 
 function stop(): void {
-    if ( state.job_id != null ) {
-        vim.fn.jobstop(state.job_id)
+    if (state.job_id != null) { // kill backend
+        vim.fn.jobstop(state.job_id);
         state.job_id = null;
         vim.api.nvim_notify('stopped Bfrs', vim.log.levels.INFO, {});
     }
-    if (state.autostart_id !== null) {
+    if (state.autostart_id !== null) { // remove autostart
         vim.api.nvim_del_autocmd(state.autostart_id);
         state.autostart_id = null;
     }
-    closeCellWindow()
-    closeWarningWindow()
-    closeOutputWindow()
+    closeCellWindow(); // kill tape display
+    closeWarningWindow(); // kill warning window (if one)
+    closeOutputWindow();  // kill output window (if one)
+    vim.api.nvim_buf_set_option(0, 'filetype', 'unknown' as any); // remove syntax highlight
 }

@@ -5,10 +5,12 @@
 ### Added
 - Added global enabled setting in config
 - Added command to open config file
+- Added configurable syntax highlight
 
 ### Fixed
 - Remove autostart autocmd in cleanup step
 - cleaned up debug prints
+- fixed error msg on :BfrsStop
 
 ### Changed 
 - Parse settings from external lua config file

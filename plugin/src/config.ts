@@ -6,7 +6,13 @@ const DEFAULT_CONFIG: string[] = [
     '  ENABLED = true, -- whether the plugin setups at all',
     '  AUTOSTART = true,  -- whether to autostart when opening a file with the below extensions',
     '  PATTERNS = {"*.bf", "*.b", "*.brainfuck"}, -- file extensions that the plugin will work on (you can also use * for all)',
-    '  DISPLAY_ROWS = 1 -- amount of rows that the live cell display should show',
+    '  DISPLAY_ROWS = 1, -- amount of rows that the live cell display should show',
+    '  -- theme settings, use nil for user theme -- ',
+    '  OPERATOR_COLOR = nil, -- color for +-',
+    '  POINTER_COLOR = nil, -- color for <>',
+    '  IO_COLOR = nil, -- color for .,',
+    '  LOOP_COLOR = nil, -- color for []',
+    '  OTHER_COLOR = nil, -- color for every other character',
     '}',
 ];
 
@@ -15,6 +21,11 @@ const DEFAULTS = {
     AUTOSTART: true,
     PATTERNS: '{*.bf,*.b,*.brainfuck}',
     DISPLAY_ROWS: 1,
+    OPERATOR_COLOR: null,
+    POINTER_COLOR: null,
+    IO_COLOR: null,
+    LOOP_COLOR: null,
+    OTHER_COLOR: null
 };
 
 export function updateOrCreateConfig(): void {
@@ -29,7 +40,7 @@ export function updateOrCreateConfig(): void {
     // @ts-ignore
     cfg = loadfile(configPath)();
     // @ts-ignore
-    vim.api.nvim_notify(tostring(getConfigOrDefault("ENABLED")), vim.log.levels.INFO, {});
+    //vim.api.nvim_notify(tostring(getConfigOrDefault("ENABLED")), vim.log.levels.INFO, {});
 }
 
 export function getConfigOrDefault(key: string): any {

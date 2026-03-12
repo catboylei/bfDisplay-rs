@@ -94,6 +94,7 @@ require("bfDisplay-rs").setup()
 :BfrsStop -- Force stop the plugin
 :BfrsPing -- Check if the backend is reached
 :BfrsRun <input> -- Display output with given input 
+:BfrsConfig -- Opens config file
 ```
 ---
 
@@ -107,7 +108,13 @@ return {
     ENABLED = true, -- whether the plugin setups at all
     AUTOSTART = true,  -- whether to autostart when opening a file with the below extensions
     PATTERNS = {"*.bf", "*.b", "*.brainfuck"}, -- file extensions (you can also use * for all)
-    DISPLAY_ROWS = 1 -- amount of rows that the live cell display should show
+    DISPLAY_ROWS = 1, -- amount of rows that the live cell display should show
+    -- theme settings, use nil for user theme -- 
+    OPERATOR_COLOR = nil, -- color for +-
+    POINTER_COLOR = nil, -- color for <>
+    IO_COLOR = nil, -- color for .,
+    LOOP_COLOR = nil, -- color for []
+    OTHER_COLOR = nil, -- color for every other character
 }
 ```
 
@@ -121,12 +128,9 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 
 ## Todos
 
-- add syntax highlighting (toggleable and with advanced options or else theres no point)
 - add color to the cell the pointer is at
 - linter... ?
 - default input for cell display
 - step through debug :3
-- color constants, toggle cell display constant
 - move all commands under :Bfrs master command
-- optimize lua compilation cus this shit laggy af
 - have run return printable value of control chars

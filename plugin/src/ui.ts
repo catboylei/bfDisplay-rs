@@ -1,6 +1,5 @@
 import { state } from './state';
 import { getConfigOrDefault } from './config';
-import {center_lines} from "./utils";
 
 export function createCellWindow(): void {
     if (state.cell_win_id != null || state.main_window_id === null) return;
