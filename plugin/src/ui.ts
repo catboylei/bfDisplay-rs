@@ -80,30 +80,25 @@ export function updateWarningWindow(): void { // 10/10 code
     createWarningWindow();
 }
 
-export function updateOrCreateOutputWindow(output: string, warning: boolean): void {
-    const width: number = Math.floor(state.columns * 0.3)
-    let lines: string[] = center_lines(output.split("\n"), width);
-    const height: number = lines.length
-
-    if ( warning ) { lines = ["timed out :c"]}
-
-    if ( state.out_buf_id && vim.api.nvim_buf_is_valid(state.out_buf_id)) { // this only handles the case where the window is still open, to not open multiple
+export function updateOrCreateOutputWindow(output: string[]): void {
+    if (state.out_buf_id && vim.api.nvim_buf_is_valid(state.out_buf_id)) {
+        // this only handles the case where the window is still open, to not open multiple
         vim.api.nvim_buf_set_option(state.out_buf_id, 'modifiable', true as any);
-        vim.api.nvim_buf_set_lines(state.out_buf_id, 0, -1, false, lines);
+        vim.api.nvim_buf_set_lines(state.out_buf_id, 0, -1, false, output);
         vim.api.nvim_buf_set_option(state.out_buf_id, 'modifiable', false as any);
         return;
     }
 
     state.out_buf_id = vim.api.nvim_create_buf(false, true);
-    vim.api.nvim_buf_set_lines(state.out_buf_id, 0, -1, false, lines);
+    vim.api.nvim_buf_set_lines(state.out_buf_id, 0, -1, false, output);
     vim.api.nvim_buf_set_option(state.out_buf_id, 'modifiable', false as any);
 
     state.out_win_id = vim.api.nvim_open_win(state.out_buf_id, true, {
         relative: 'editor',
-        row: Math.floor((state.lines- height) / 7),
-        col: Math.floor((state.columns - width) / 2),
-        width: width,
-        height: height,
+        row: Math.floor((state.lines - output.length) / 7),
+        col: Math.floor((state.columns - Math.floor(state.columns * 0.3)) / 2),
+        width: Math.floor(state.columns * 0.3),
+        height: output.length,
         style: 'minimal',
         border: 'rounded',
         title: ' Bfrs Output ',

@@ -13,7 +13,7 @@ use nvim_rs::{
 };
 use crate::bf_interpreter::{BrainfuckInterpreter, RpcResult};
 use crate::constants::COLUMNS;
-use crate::utils::{cleanup_contents, format_cell_display};
+use crate::utils::{cleanup_contents, format_cell_display, format_output};
 
 #[derive(Clone)]
 struct NeovimHandler {}
@@ -40,7 +40,7 @@ impl Handler for NeovimHandler {
                     display_lines: format_cell_display(&interp_result),
                     pointer: interp_result.pointer,
                     inf_loop_warning: interp_result.infinite_loop_warning,
-                    output: "".to_string()
+                    output: Vec::new()
                 };
 
                 // actually send data via nvim_exec_lua
@@ -55,11 +55,13 @@ impl Handler for NeovimHandler {
                 let input = args.get(2).and_then(|v| v.as_str()).unwrap_or("").to_string();
                 let commands = cleanup_contents(&code, cursor);
                 let mut interp = BrainfuckInterpreter::new();
-                let result = interp.execute(&commands, input, true);
+                let interp_result = interp.execute(&commands, input, true);
 
+                let result = format_output(interp_result.output, interp_result.infinite_loop_warning);
+                
                 // actually send data via nvim_exec_lua
                 neovim
-                    .exec_lua("require('bfDisplay-rs').on_rpc_return_interpret(...)", vec![Value::from(result)], )
+                    .exec_lua("require('bfDisplay-rs').on_rpc_return_interpret(...)", vec![Value::Array(result.iter().map(|s| Value::from(s.as_str())).collect())], )
                     .await
                     .ok();
             }

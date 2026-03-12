@@ -76,15 +76,17 @@ fn fmt_ascii(n: usize) -> String {
     " ".repeat(left) + &*s + &*" ".repeat(right)
 }
 
-impl From<InterpreterResult> for Value {
-    fn from(result: InterpreterResult) -> Value {
-        Value::Map(vec![
-            (Value::from("tape"), Value::Array(result.tape.iter().map(|&v| Value::from(v)).collect())),
-            (Value::from("pointer"), Value::from(result.pointer)),
-            (Value::from("warning"), Value::from(result.infinite_loop_warning)),
-            (Value::from("output"), Value::from(result.output))
-        ])
+pub fn format_output(output: String, warning: bool) -> Vec<String> {
+    let width = (COLUMNS.load(Ordering::Relaxed) as f64 * 0.3).floor() as usize;
+
+    let mut centered_lines = Vec::new();
+    for line in output.split("\n") {
+        centered_lines.push(format!("{:^width$}", line))
     }
+
+    if warning { centered_lines.push("timed out :c".to_string())}
+
+    centered_lines
 }
 
 impl From<RpcResult> for Value {
@@ -93,7 +95,7 @@ impl From<RpcResult> for Value {
             (Value::from("cell_display"), Value::Array(result.display_lines.iter().map(|s| Value::from(s.as_str())).collect())),
             (Value::from("pointer"), Value::from(result.pointer)),
             (Value::from("warning"), Value::from(result.inf_loop_warning)),
-            (Value::from("output"), Value::from(result.output))
+            (Value::from("output"), Value::Array(result.display_lines.iter().map(|s| Value::from(s.as_str())).collect()))
         ])
     }
 }

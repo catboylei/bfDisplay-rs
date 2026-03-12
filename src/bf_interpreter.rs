@@ -12,7 +12,7 @@ pub struct RpcResult {
     pub display_lines: Vec<String>,
     pub pointer: usize,
     pub inf_loop_warning: bool,
-    pub output: String
+    pub output: Vec<String>
 }
 
 pub struct BrainfuckInterpreter {

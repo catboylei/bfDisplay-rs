@@ -10,7 +10,7 @@ export function on_rpc_return_evaluate(result: any): void {
 }
 
 export function on_rpc_return_interpret(result: any): void {
-    updateOrCreateOutputWindow(result['output'], result['warning'])
+    updateOrCreateOutputWindow(result)
 }
 
 export function send_rpc_evaluate(): void {

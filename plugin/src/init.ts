@@ -1,11 +1,7 @@
 import { ping_backend } from './utils';
 import { getConfigOrDefault, openConfigFile, updateOrCreateConfig } from './config';
 import { state } from './state';
-import {
-    createCellWindow,
-    closeCellWindow,
-    closeWarningWindow, closeOutputWindow, updateCellDisplay, updateWarningWindow, createWarningWindow,
-} from './ui';
+import {createCellWindow, closeCellWindow, closeWarningWindow, closeOutputWindow, updateWarningWindow,} from './ui';
 import { send_rpc_evaluate, send_rpc_interpret } from './rpc';
 
 export function setup(): void {
