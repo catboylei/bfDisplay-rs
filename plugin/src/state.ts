@@ -14,10 +14,9 @@ export const state = {
 
     autostart_id: null as number | null,
 
-    columns: vim.api.nvim_get_option('columns') as any as number, // todo update this on window resize
+    columns: vim.api.nvim_get_option('columns') as any as number,
     lines: vim.api.nvim_get_option('lines') as any as number,
 
-    tape: Array.from({ length: 30000 }, () => 0),
     pointer: 0,
     warning: false,
 

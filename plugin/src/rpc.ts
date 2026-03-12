@@ -3,15 +3,13 @@ import { state } from './state';
 
 // this function and the next one directly get called from the rust backend, so they arent used here
 export function on_rpc_return_evaluate(result: any): void {
-    state.tape = result['tape'];
     state.pointer = result['pointer']
     state.warning = result['warning']
     state.pending_request = false;
-    updateCellDisplay()
+    updateCellDisplay(result['cell_display'])
 }
 
 export function on_rpc_return_interpret(result: any): void {
-    vim.api.nvim_notify('returned value', vim.log.levels.INFO, {});
     updateOrCreateOutputWindow(result['output'], result['warning'])
 }
 
@@ -34,5 +32,4 @@ export function send_rpc_interpret(input: any): void {
     const lines = linesArray.join("\n");
 
     vim.fn.rpcnotify(state.job_id, 'interpret', lines, cursor, input);
-    vim.api.nvim_notify('sent request to job id: ' + state.job_id, vim.log.levels.INFO, {});
 }

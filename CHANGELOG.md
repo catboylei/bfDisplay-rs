@@ -8,9 +8,11 @@
 
 ### Fixed
 - Remove autostart autocmd in cleanup step
+- cleaned up debug prints
 
 ### Changed 
 - Parse settings from external lua config file
+- Move logic to backend for a *significant* performance boost
 
 ## [1.1.0] - 2026-03-11
 

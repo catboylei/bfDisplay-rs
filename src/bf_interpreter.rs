@@ -8,6 +8,13 @@ pub struct InterpreterResult {
     pub output: String
 }
 
+pub struct RpcResult {
+    pub display_lines: Vec<String>,
+    pub pointer: usize,
+    pub inf_loop_warning: bool,
+    pub output: String
+}
+
 pub struct BrainfuckInterpreter {
     tape: [u8; 30_000],
     pointer: usize,

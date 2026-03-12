@@ -4,15 +4,16 @@ mod constants;
 mod bf_interpreter;
 
 use std::{error::Error};
+use std::sync::atomic::Ordering;
 use async_trait::async_trait;
 use rmpv::Value;
 use tokio::fs::File as TokioFile;
 use nvim_rs::{
     compat::tokio::Compat, create::tokio as create, Handler, Neovim,
 };
-use crate::bf_interpreter::BrainfuckInterpreter;
-use crate::utils::cleanup_contents;
-// todo switch to a notify so its not blocking + detect infinite loops with time of execution
+use crate::bf_interpreter::{BrainfuckInterpreter, RpcResult};
+use crate::constants::COLUMNS;
+use crate::utils::{cleanup_contents, format_cell_display};
 
 #[derive(Clone)]
 struct NeovimHandler {}
@@ -29,12 +30,18 @@ impl Handler for NeovimHandler {
     ) {
         match name.as_ref() {
             "evaluate" => {
-                eprintln!("eval request received");
                 let code = args[0].as_str().unwrap_or("").to_string();
                 let cursor = &args[1];
                 let commands = cleanup_contents(&code, cursor);
                 let mut interp = BrainfuckInterpreter::new();
-                let result = interp.execute(&commands, String::from(""), false);
+                let interp_result = interp.execute(&commands, String::from(""), false);
+
+                let result = RpcResult {
+                    display_lines: format_cell_display(&interp_result),
+                    pointer: interp_result.pointer,
+                    inf_loop_warning: interp_result.infinite_loop_warning,
+                    output: "".to_string()
+                };
 
                 // actually send data via nvim_exec_lua
                 neovim
@@ -43,7 +50,6 @@ impl Handler for NeovimHandler {
                     .ok();
             }
             "interpret" => {
-                eprintln!("interpret received, args len={}", args.len());
                 let code = args[0].as_str().unwrap_or("").to_string();
                 let cursor = &args[1];
                 let input = args.get(2).and_then(|v| v.as_str()).unwrap_or("").to_string();
@@ -64,6 +70,9 @@ impl Handler for NeovimHandler {
                     .await
                     .ok();
                 eprintln!("sent pong");
+            }
+            "update_columns" => {
+                COLUMNS.store(args[0].as_i64().unwrap_or(200) as i32, Ordering::Relaxed);
             }
             _ => {}
         }

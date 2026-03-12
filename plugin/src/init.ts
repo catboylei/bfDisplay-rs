@@ -19,7 +19,6 @@ export function setup(): void {
     vim.api.nvim_create_user_command('BfrsConfig', (() => openConfigFile()) as any, {});
 
     if (getConfigOrDefault("AUTOSTART")) {
-        createWarningWindow()
         state.autostart_id = vim.api.nvim_create_autocmd('BufEnter' as any, {
             pattern: getConfigOrDefault("PATTERNS"),
             callback: () => {
@@ -46,6 +45,8 @@ function start(): void {
             vim.fn.writefile(filtered, '/tmp/bfDisplay.log', 'a');
         },
     });
+
+    vim.fn.rpcnotify(state.job_id, 'update_columns', state.columns);
 
     state.main_window_id = vim.api.nvim_get_current_win();
     createCellWindow();
@@ -75,12 +76,12 @@ function start(): void {
             state.columns = vim.api.nvim_get_option('columns') as any as number;
             state.lines = vim.api.nvim_get_option('lines') as any as number;
 
-            updateCellDisplay()
+            vim.fn.rpcnotify(state.job_id, 'update_columns', state.columns)
+            send_rpc_evaluate()
             updateWarningWindow()
             closeOutputWindow() // the warning window can go explode i am lazy
         }
     })
-
 
     vim.api.nvim_notify('Bfrs started, job_id: ' + state.job_id, vim.log.levels.INFO, {});
 }

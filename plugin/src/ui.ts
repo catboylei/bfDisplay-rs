@@ -1,5 +1,5 @@
 import { state } from './state';
-import { CONTROL_CHARS, getConfigOrDefault } from './config';
+import { getConfigOrDefault } from './config';
 import {center_lines} from "./utils";
 
 export function createCellWindow(): void {
@@ -31,47 +31,10 @@ export function closeCellWindow(): void {
     state.cell_win_id = null;
 }
 
-export function updateCellDisplay(): void {
+export function updateCellDisplay(display_lines: any): void {
     if (state.cell_win_id === null || state.cell_buf_id === null) return;
-    const tape = state.tape;
-    const ptr = state.pointer
-    const warning = state.warning
 
-    const cell_width: number = 8; // this is not in constants because i dont want ppl fucking with it as it would break
-    const cells_per_row = Math.floor(state.columns / cell_width);
-    const display_lines: string[] = [];
-    const fmt = (n: number) => {
-        const s = String(n);
-        const left = Math.ceil((7 - s.length) / 2);
-        const right = 7 - s.length - left;
-        return ' '.repeat(left) + s + ' '.repeat(right);
-    };
-    const fmt_ascii = (n: number) => {
-        let s: string;
-        if (n >= 32 && n <= 126)
-            s = String.fromCharCode(n);
-        else if (n <= 31 || n === 127)
-            s = CONTROL_CHARS[n];
-        else s = "?"; // unsupported
-
-        const left = Math.ceil((7 - s.length) / 2);
-        const right = 7 - s.length - left;
-        return ' '.repeat(left) + s + ' '.repeat(right);
-    };
-
-    for (let row = 0; row * cells_per_row < tape.length; row++) {
-        const slice = tape.slice(row * cells_per_row, (row + 1) * cells_per_row);
-        const cell_nums = slice.map((_, i) => fmt(row * cells_per_row + i));
-        const cell_vals = slice.map((v) => fmt(v ?? 0));
-        const cell_ascii = slice.map((v) => fmt_ascii(v ?? -1))
-        const ptr_row = slice.map((_, i) =>
-            row * cells_per_row + i === ptr ? '   ^    ' : '        '
-        );
-
-        display_lines.push(cell_nums.join('|'), cell_vals.join('|'), cell_ascii.join('|') ,ptr_row.join(''));
-    }
-
-    warning ? createWarningWindow() : closeWarningWindow();
+    state.warning ? createWarningWindow() : closeWarningWindow();
 
     vim.api.nvim_buf_set_option(state.cell_buf_id, 'modifiable', true as any);
     vim.api.nvim_buf_set_lines(state.cell_buf_id, 0, -1, false, display_lines);
