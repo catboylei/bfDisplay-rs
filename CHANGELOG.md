@@ -31,8 +31,7 @@
 ### Changed
 - Avoid piling up rpc requests, just skip if pending to makes display feel more responsive
 
-## [1.0.0] - 2026-03-10
-- Initial release
+## [1.0.0] - 2026-03-10 - Initial Release
 
 ### Added
 - Live tape display at cursor position

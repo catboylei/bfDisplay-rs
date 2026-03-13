@@ -1,5 +1,6 @@
 let cfg: any;
 
+// default config, only used to write the config file if it doesnt exist
 const DEFAULT_CONFIG: string[] = [
     '-- changing some of these might break things, if it breaks too hard just delete this file - it will be regenerated with defaults',
     'return {',
@@ -16,6 +17,7 @@ const DEFAULT_CONFIG: string[] = [
     '}',
 ];
 
+// fallbacks for getConfigOrDefault
 const DEFAULTS = {
     ENABLED: true,
     AUTOSTART: true,
@@ -28,28 +30,27 @@ const DEFAULTS = {
     OTHER_COLOR: null
 };
 
+// load config variables into cfg and create config file if necessary
 export function updateOrCreateConfig(): void {
     const dataPath: string = vim.fn.stdpath('data') + '/bfDisplay-rs';
     const configPath: string = dataPath + '/config.lua';
 
     vim.fn.mkdir(dataPath, 'p');
-    if (vim.fn.filereadable(configPath) == 0) {
-        vim.fn.writefile(DEFAULT_CONFIG, configPath);
-    }
+    if (vim.fn.filereadable(configPath) == 0) { vim.fn.writefile(DEFAULT_CONFIG, configPath); }
 
     // @ts-ignore
     cfg = loadfile(configPath)();
-    // @ts-ignore
-    //vim.api.nvim_notify(tostring(getConfigOrDefault("ENABLED")), vim.log.levels.INFO, {});
 }
 
+// get value from cfg or fallback
 export function getConfigOrDefault(key: string): any {
     if (!cfg) return (DEFAULTS as any)[key];
     if (cfg[key] === null) return (DEFAULTS as any)[key];
     return cfg[key];
 }
 
-export function openConfigFile() {
+// open config file in current nvim window
+export function openConfigFile(): void {
     const dataPath: string = vim.fn.stdpath('data') + '/bfDisplay-rs/config.lua';
     vim.api.nvim_command('e ' + dataPath);
 }

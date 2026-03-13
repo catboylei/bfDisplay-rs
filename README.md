@@ -17,9 +17,7 @@ Also includes a simple interpreter that handles i/o, and configurable syntax hig
 
 ![img.png](assets/readme.png)
 
-Note: this delegates all interpreting logic to a rust binary, for speed and so that stuff like infinite loops dont lag out nvim.
-
-After you have the plugin installed, just run nvim on a ```.bf```, ```.b```, or ```.brainfuck```  file to initiate the display :3
+After you have the plugin installed, just run nvim on a ```.bf```, ```.b```, or ```.brainfuck```  file to initiate the display
 
 (you can disable the plugin autostarting on brainfuck files in the config)
 
@@ -156,4 +154,5 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 - default input for cell display
 - step through debug :3
 - have run return printable value of control chars
-- comment code
+- comment backend
+- more settings, mainly stuff to enable/disable things
