@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-13
+
 ### Added
 - Added global enabled setting in config
 - Added command to open config file

@@ -1,7 +1,7 @@
 #!/bin/bash
 mkdir -p lua
-curl -L "https://github.com/catboylei/bfDisplay-rs/releases/download/1.1.0/bfDisplay" -o lua/bfDisplay
-curl -L "https://github.com/catboylei/bfDisplay-rs/releases/download/1.1.0/bfDisplay-rs.lua" -o lua/bfDisplay-rs.lua
+curl -L "https://github.com/catboylei/bfDisplay-rs/releases/latest/download/bfDisplay" -o lua/bfDisplay
+curl -L "https://github.com/catboylei/bfDisplay-rs/releases/latest/download/bfDisplay-rs.lua" -o lua/bfDisplay-rs.lua
 
 chmod +x lua/bfDisplay
 
