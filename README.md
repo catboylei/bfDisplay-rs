@@ -114,17 +114,17 @@ Important to note that this uses ```vim.fn.rpcnotify``` which is **non-blocking*
 ## Commands
 
 ```lua
-:BfrsStart -- Force start the plugin
-:BfrsStop -- Force stop the plugin
-:BfrsPing -- Check if the backend is reached
-:BfrsRun <input> -- Display output with given input 
-:BfrsConfig -- Opens config file
+:Bfrs start -- Force start the plugin
+:Bfrs stop -- Force stop the plugin
+:Bfrs ping -- Check if the backend is reached
+:Bfrs run <input> -- Display output with given input 
+:Bfrs config -- Opens config file
 ```
 ---
 
 ## Customization
 
-This plugin comes with various customization constants, that you can edit by running :BfrsConfig
+This plugin comes with various customization constants, that you can edit by running :Bfrs config
 
 They will default to the values listed here if the custom value is wrong.
 ```lua
@@ -152,9 +152,8 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 
 ## Todos
 
-- add color to the cell the pointer is at
 - linter... ?
 - default input for cell display
 - step through debug :3
-- move all commands under :Bfrs master command
 - have run return printable value of control chars
+- comment code

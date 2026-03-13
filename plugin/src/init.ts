@@ -8,25 +8,28 @@ export function setup(): void {
     if (!getConfigOrDefault("ENABLED")) return;
     updateOrCreateConfig();
 
-    vim.api.nvim_create_user_command('BfrsPing', (() => ping_backend()) as any, {});
-    vim.api.nvim_create_user_command('BfrsRun', ((input: any) => send_rpc_interpret(input.args)) as any, { nargs: '?'});
-    vim.api.nvim_create_user_command('BfrsStart', (() => start()) as any, {});
-    vim.api.nvim_create_user_command('BfrsStop', (() => stop()) as any, {});
-    vim.api.nvim_create_user_command('BfrsConfig', (() => openConfigFile()) as any, {});
+    vim.api.nvim_create_user_command('Bfrs', ((input: any) => {
+        const cmd = input.fargs[1];
+        if (cmd === 'run') { send_rpc_interpret(input.fargs[2]);}
+        else if (cmd === 'start') {start();}
+        else if (cmd === 'stop') {stop();}
+        else if (cmd === 'config') {openConfigFile();}
+        else if (cmd === 'ping') {ping_backend();}
+    }) as any, {nargs: '+'});
 
     if (getConfigOrDefault("AUTOSTART")) {
         state.autostart_id = vim.api.nvim_create_autocmd('BufEnter' as any, {
             pattern: getConfigOrDefault("PATTERNS"),
             callback: () => {
                 if (state.job_id === null) {
-                    vim.api.nvim_command('BfrsStart');
+                    vim.api.nvim_command('Bfrs start');
                 }
             },
         });
     }
 }
 
-function start(): void {
+export function start(): void {
     if ( state.job_id != null ) return;
     vim.api.nvim_buf_set_option(0, 'filetype', 'brainfuck' as any); // apply syntax highlight
     setupSyntax()
@@ -85,7 +88,7 @@ function start(): void {
     vim.api.nvim_notify('Bfrs started, job_id: ' + state.job_id, vim.log.levels.INFO, {});
 }
 
-function stop(): void {
+export function stop(): void {
     if (state.job_id != null) { // kill backend
         vim.fn.jobstop(state.job_id);
         state.job_id = null;

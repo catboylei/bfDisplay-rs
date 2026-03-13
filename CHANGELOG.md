@@ -15,6 +15,7 @@
 ### Changed 
 - Parse settings from external lua config file
 - Move logic to backend for a *significant* performance boost
+- Moved all commands to the :Bfrs master command
 
 ## [1.1.0] - 2026-03-11
 
