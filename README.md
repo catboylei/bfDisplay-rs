@@ -13,18 +13,22 @@ A Neovim plugin for live brainfuck debugging, powered by a Rust backend via msgp
 As you move your cursor through a .bf file, the plugin displays the state of the tape up to that point in the top split, 
 showing cell indices, values, the pointer position, and a warning if an infinite loop is detected.
 
-Also includes a simple interpreter that handles i/o, through neovim user commands
+Also includes a simple interpreter that handles i/o, and configurable syntax highlighting.
 
 ![img.png](assets/readme.png)
 
-Note: this delegates all interpreting logic to a **non-blocking** rust binary, for speed and so that stuff like infinite loops dont lag out nvim.
+Note: this delegates all interpreting logic to a rust binary, for speed and so that stuff like infinite loops dont lag out nvim.
 
-After you have the plugin installed, just run ```:BfrsStart``` in nvim while viewing a ```.bf```  file to initiate the display :3
+After you have the plugin installed, just run nvim on a ```.bf```, ```.b```, or ```.brainfuck```  file to initiate the display :3
+
+(you can disable the plugin autostarting on brainfuck files in the config)
 
 **Disclaimers:**
-- the lua code is "written" by compiling ts into lua through [TypeScriptToLua](https://github.com/TypeScriptToLua/TypeScriptToLua)
-- with more complex code, this kinda starts to fall apart since reinterpreting your code every time you type a character is bad\
-*if you really wanna, you can just increase the step limit dont complain if it breaks or is slow tho*
+- the lua code is "written" by compiling ts into lua through [TypeScriptToLua](https://github.com/TypeScriptToLua/TypeScriptToLua), and is completely unreadable.  
+Id recommend looking at the ts source if you wanna look at source code, that is also why i am not shipping the compiled lua directly,
+outside of releases for lazy.nvim. 
+- this is still in early development, i have been solving every bug and oversight i found so far, but i probably still missed
+some things
 
 ---
 
@@ -72,6 +76,26 @@ Then add to ```init.lua```:
 ```lua
 require("bfDisplay-rs").setup()
 ```
+---
+
+## Why Rust ? 
+
+**Neovim (and its plugins) are single-threaded.** 
+
+This means that plugins running in nvim, will run alongside it on the same thread. This essentially means that any calculations or
+actions that a plugin may execute will freeze neovim for their duration.
+
+This is usually not too much of an issue, but for interpreters or anything that takes a decent amount of computing power, 
+this very quickly becomes an issue if you run any calculations on a regular basis (eg. recalculating the tape on cursor move)
+
+On top of this, nvim plugins are typically written in lua. While lua is on the faster side of high-level languages, it is still an interpreted
+language whose speed does NOT compare to a compiled binary.
+
+To remedy these issues, this plugin delegates most of its calculations and logic to a rust binary, using it as a backend with
+```vim.fn.rpcnotify``` to send information to it and then keep running nvim.
+
+Important to note that this uses ```vim.fn.rpcnotify``` which is **non-blocking** and then handle the result later, as opposed to
+```vim.fn.rpcrequest``` which blocks the thread until it gets an answer (defeats the entire point)
 
 ---
 
@@ -89,7 +113,7 @@ require("bfDisplay-rs").setup()
 
 ## Commands
 
-```
+```lua
 :BfrsStart -- Force start the plugin
 :BfrsStop -- Force stop the plugin
 :BfrsPing -- Check if the backend is reached
