@@ -14,6 +14,8 @@ export function receive_ping(result: any) {
 
 // set up syntax according to config or fallback, should only be called on plugin init
 export function setupSyntax(): void {
+    if (!getConfigOrDefault("SYNTAX_HIGHLIGHT")) return;
+
     vim.api.nvim_command('syn match bfOperator "[+\\-]"');
     vim.api.nvim_command('syn match bfPointer "[<>]"');
     vim.api.nvim_command('syn match bfIO "[.,]"');

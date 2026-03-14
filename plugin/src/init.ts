@@ -93,7 +93,7 @@ export function stop(): void {
         vim.api.nvim_del_autocmd(state.autostart_id);
         state.autostart_id = null;
     }
-    closeCellWindow(); // kill tape display
+    closeCellWindow(); // kill tape display (if one)
     closeWarningWindow(); // kill warning window (if one)
     closeOutputWindow();  // kill output window (if one)
     vim.api.nvim_buf_set_option(0, 'filetype', 'unknown' as any); // remove syntax highlight

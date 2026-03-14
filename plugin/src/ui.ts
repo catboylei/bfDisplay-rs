@@ -3,7 +3,7 @@ import { getConfigOrDefault } from './config';
 
 // create empty cell window and store its ids to reuse later (this should only be called on plugin start)
 export function createCellWindow(): void {
-    if (state.cell_win_id != null || state.main_window_id === null) return;
+    if (state.cell_win_id != null || state.main_window_id === null || !getConfigOrDefault("CELL_DISPLAY")) return;
 
     state.cell_buf_id = vim.api.nvim_create_buf(false, true); // blah blah create buffer and open window with it, you got it
 
@@ -35,7 +35,7 @@ export function closeCellWindow(): void {
 
 // gets called indirectly by the backend, to apply formatted lines to the cell display
 export function updateCellDisplay(display_lines: any): void {
-    if (state.cell_win_id === null || state.cell_buf_id === null) return;
+    if (state.cell_win_id === null || state.cell_buf_id === null || !getConfigOrDefault('CELL_DISPLAY')) return;
 
     state.warning ? createWarningWindow() : closeWarningWindow(); // both safe functions so no point in checking state prior
 

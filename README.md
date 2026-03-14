@@ -131,6 +131,9 @@ return {
     AUTOSTART = true,  -- whether to autostart when opening a file with the below extensions
     PATTERNS = {"*.bf", "*.b", "*.brainfuck"}, -- file extensions (you can also use * for all)
     DISPLAY_ROWS = 1, -- amount of rows that the live cell display should show
+    CELL_DISPLAY = true, -- whether the cell display should be rendered and calculated
+    SYNTAX_HIGHLIGHT = true, -- whether syntax highlight should be rendered
+    
     -- theme settings, use nil for user theme -- 
     OPERATOR_COLOR = nil, -- color for +-
     POINTER_COLOR = nil, -- color for <>
@@ -153,6 +156,5 @@ Running numwarp from [brainfuck.org](https://brainfuck.org/numwarp.b) with "6" a
 - linter... ?
 - default input for cell display
 - step through debug :3
-- have run return printable value of control chars
 - comment backend
-- more settings, mainly stuff to enable/disable things
+- more settings ig
