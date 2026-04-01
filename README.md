@@ -51,8 +51,13 @@ lazy obviously does not natively support compiling rust
 
 ### Option 2 - Manual Download
 
-Go into [Releases](https://github.com/catboylei/bfDisplay-rs/releases), grab both the ```bfDisplay-rs.lua``` and the ```bfDisplay``` binary,
+Go into [Releases](https://github.com/catboylei/bfDisplay-rs/releases), grab both a ```bfDisplay-rs.lua``` file and a ```bfDisplay``` compiled binary,
 and simply place them in ```~/.config/nvim/lua/```
+
+You then also need to make the binary executable manually:
+```bash
+chmod +x bfDisplay
+```
 
 Then add to ```init.lua```:
 ```lua
