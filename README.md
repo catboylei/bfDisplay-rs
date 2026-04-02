@@ -122,6 +122,7 @@ Important to note that this uses ```vim.fn.rpcnotify``` which is **non-blocking*
 :Bfrs ping -- Check if the backend is reached
 :Bfrs run <input> -- Display output with given input 
 :Bfrs config -- Opens config file
+:Bfrs default <new input> -- Change the default input for cell display
 ```
 ---
 
