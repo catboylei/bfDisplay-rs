@@ -12,7 +12,7 @@ use nvim_rs::{
     compat::tokio::Compat, create::tokio as create, Handler, Neovim,
 };
 use crate::bf_interpreter::{BrainfuckInterpreter, RpcResult};
-use crate::constants::COLUMNS;
+use crate::constants::{COLUMNS, DEFAULT_INPUT};
 use crate::utils::{cleanup_contents, format_cell_display, format_output};
 
 #[derive(Clone)]
@@ -34,7 +34,7 @@ impl Handler for NeovimHandler {
                 let cursor = &args[1];
                 let commands = cleanup_contents(&code, cursor);
                 let mut interp = BrainfuckInterpreter::new();
-                let interp_result = interp.execute(&commands, String::from(""), false);
+                let interp_result = interp.execute(&commands, DEFAULT_INPUT.read().unwrap().to_string(), false);
 
                 let result = RpcResult {
                     display_lines: format_cell_display(&interp_result),
@@ -75,6 +75,11 @@ impl Handler for NeovimHandler {
             }
             "update_columns" => {
                 COLUMNS.store(args[0].as_i64().unwrap_or(200) as i32, Ordering::Relaxed);
+            }
+            "update_input" => {
+                let mut input = DEFAULT_INPUT.write().unwrap();
+                *input = args[0].as_str().unwrap_or("meow").to_string();
+                drop(input);
             }
             _ => {}
         }

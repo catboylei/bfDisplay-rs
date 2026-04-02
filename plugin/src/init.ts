@@ -44,6 +44,7 @@ export function start(): void {
     });
 
     vim.fn.rpcnotify(state.job_id, 'update_columns', state.columns); // store width of nvim window in backend
+    vim.fn.rpcnotify(state.job_id, 'update_input', 'meow') // set the default input
 
     state.main_window_id = vim.api.nvim_get_current_win(); // store main window id
 

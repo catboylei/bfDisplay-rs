@@ -1,4 +1,5 @@
 use std::sync::atomic::AtomicI32;
+use std::sync::RwLock;
 
 pub const BF_COMMANDS: [char; 8] = ['>', '<', '+', '-', '[', ']', '.', ','];
 pub const MAX_STEPS: usize = 1_000_000;
@@ -11,3 +12,4 @@ pub const CONTROL_CHARS: [&str; 32] = [ // not hashmap because they just corresp
 ];
 
 pub static COLUMNS: AtomicI32 = AtomicI32::new(200);
+pub static DEFAULT_INPUT: RwLock<String> = RwLock::new(String::new());
