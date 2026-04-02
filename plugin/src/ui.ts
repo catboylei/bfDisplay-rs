@@ -21,7 +21,7 @@ export function createCellWindow(): void {
     vim.api.nvim_win_set_option(state.cell_win_id, 'winfixheight', true as any);
     vim.api.nvim_win_set_option(state.cell_win_id, 'winfixbuf', true as any);
     vim.api.nvim_buf_set_option(state.cell_buf_id, 'modifiable', false as any);
-    vim.api.nvim_win_set_option(state.cell_win_id, 'mousescroll', `ver:4,hor:6` as any); // fix scroll on cells
+    vim.api.nvim_win_set_option(state.cell_win_id, 'mousescroll', `ver:5,hor:6` as any); // fix scroll on cells
     vim.api.nvim_win_set_option(state.cell_win_id, "list", false as any);
     vim.api.nvim_win_set_option(state.cell_win_id, "fillchars", "eob: " as any);
 }
