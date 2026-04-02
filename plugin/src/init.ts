@@ -16,7 +16,10 @@ export function setup(): void {
         else if (cmd === 'stop') {stop();}
         else if (cmd === 'config') {openConfigFile();}
         else if (cmd === 'ping') {ping_backend();}
-        else if (cmd === 'default') {vim.fn.rpcnotify(state.job_id, "update_input", input.fargs[2]);}
+        else if (cmd === 'default') {
+            vim.fn.rpcnotify(state.job_id, "update_input", input.fargs[2]);
+            send_rpc_evaluate();
+        }
     }) as any, {nargs: '+'});
 
     if (getConfigOrDefault("AUTOSTART")) { // set up the autostart if option is true

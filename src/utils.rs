@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering;
 use rmpv::Value;
 use crate::bf_interpreter::{InterpreterResult, RpcResult};
-use crate::constants::{BF_COMMANDS, COLUMNS, CONTROL_CHARS};
+use crate::constants::{BF_COMMANDS, COLUMNS, CONTROL_CHARS, DEFAULT_INPUT};
 
 pub fn cleanup_contents(content: &str, cursor_pos: &Value) -> Vec<char> {
     content
@@ -48,11 +48,22 @@ pub fn format_cell_display(result: &InterpreterResult) -> Vec<String> {
         display_lines.push(cell_vals.join("|"));
         display_lines.push(cell_ascii.join("|"));
         display_lines.push(ptr_row.join(""));
+        display_lines.push(fmt_input(DEFAULT_INPUT.read().unwrap().to_string(), COLUMNS.load(Ordering::Relaxed)));
 
         row += 1;
     }
 
     display_lines
+}
+
+fn fmt_input(input: String, width: i32) -> String {
+    let meow = format!("Default input: \"{input}\"");
+    let len = meow.len();
+    let w = width as usize;
+
+    let left = (w - len) / 2;
+    let right = w - len - left;
+    " ".repeat(left) + &meow + &" ".repeat(right)
 }
 
 fn fmt(n: usize) -> String {

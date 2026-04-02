@@ -9,7 +9,7 @@ export function createCellWindow(): void {
 
     state.cell_win_id = vim.api.nvim_open_win(state.cell_buf_id, false, {
         split: 'above',
-        height: Math.floor(getConfigOrDefault("DISPLAY_ROWS") * 4),
+        height: Math.floor(getConfigOrDefault("DISPLAY_ROWS") * 5),
     });
 
     // random useful or not options for the window
