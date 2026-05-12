@@ -32,7 +32,7 @@ some things
 
 ## Installation
 
-You may either manually install the files, or install it through lazy.nvim
+You may either manually install the files, install them through lazy.nvim, or use the flake if you are on Nix
 
 if you opt for a manual installation, the baseline is you need **BOTH** compiled files in your nvim plugins directory, 
 as well as calling the plugin in your init.lua.
@@ -49,7 +49,31 @@ Once that is added, run :Lazy in nvim to open the lazy gui, where you can rebuil
 Note: the build step is necessary, it downloads the actual binaries from releases since 
 lazy obviously does not natively support compiling rust
 
-### Option 2 - Manual Download
+### Option 2 - Nix Flake
+
+Add it to your flake inputs like so:
+```nix
+inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    #...
+    bfdisplay-rs.url = "github:catboylei/bfdisplay-rs";
+    #...
+};
+```
+
+Use it either directly or through an overlay:
+```nix
+# direct
+inputs.bfdisplay-rs.packages."${stdenv.hostPlatform.system}".default
+
+# overlay
+nixpkgs.overlays = [ inputs.bfdisplay-rs.overlays.default ];
+# makes pkgs.bfdisplay-rs available
+```
+
+Then just apply to your config
+
+### Option 3 - Manual Download
 
 Go into [Releases](https://github.com/catboylei/bfDisplay-rs/releases), grab both a ```bfDisplay-rs.lua``` file and a ```bfDisplay``` compiled binary,
 and simply place them in ```~/.config/nvim/lua/```
@@ -64,7 +88,7 @@ Then add to ```init.lua```:
 require("bfDisplay-rs").setup()
 ```
 
-### Option 3 - Manual Compilation (requires tstl and cargo)
+### Option 4 - Manual Compilation (requires tstl and cargo)
 
 This is the better option if you wish to edit constants or other customizations, simply clone the repo and then run the Makefile:
 
@@ -147,6 +171,38 @@ return {
     LOOP_COLOR = nil, -- color for []
     OTHER_COLOR = nil, -- color for every other character
 }
+```
+
+### Home Manager Module
+
+If you use [nixvim](https://github.com/nix-community/nixvim), you can configure the plugin declaratively 
+through its Home Manager module:
+
+```nix
+programs.nixvim = {
+    enable = true;
+    
+    plugins.bfdisplay-rs = {
+        enable = true;
+        
+        # contains all options
+        settings = {
+            enabled = true;
+            autostart = true;
+            patterns = [ "*.bf" "*.b" "*.brainfuck" ];
+            displayRows = 1;
+            cellDisplay = true;
+            syntaxHighlight = true;
+            
+            # example for setting a colour
+            operatorColor = "#ffceff";
+            pointerColor = null;
+            ioColor = null;
+            loopColor = null;
+            otherColor = null;
+        };
+    };
+};
 ```
 
 ---
