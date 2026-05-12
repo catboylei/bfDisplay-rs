@@ -61,17 +61,10 @@ inputs = {
 };
 ```
 
-Use it either directly or through an overlay:
+Use it via:
 ```nix
-# direct
 inputs.bfdisplay-rs.packages."${stdenv.hostPlatform.system}".default
-
-# overlay
-nixpkgs.overlays = [ inputs.bfdisplay-rs.overlays.default ];
-# makes pkgs.bfdisplay-rs available
 ```
-
-Then just apply to your config
 
 ### Option 3 - Manual Download
 
@@ -172,7 +165,7 @@ return {
     OTHER_COLOR = nil, -- color for every other character
 }
 ```
-
+<!--
 ### Home Manager Module
 
 If you use [nixvim](https://github.com/nix-community/nixvim), you can configure the plugin declaratively 
@@ -204,6 +197,7 @@ programs.nixvim = {
     };
 };
 ```
+-->
 
 ---
 ## Examples
